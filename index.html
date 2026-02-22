@@ -3,151 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Brawl Stars Pro</title>
+    <title>Brawl Stars - Starr Island Edition</title>
     <style>
-        :root {
-            --bs-blue: #0051ff;
-            --bs-yellow: #ffcc00;
-            --bs-purple: #8e44ad;
-        }
-        body { margin: 0; overflow: hidden; background: #001a4d; font-family: 'Arial Black', sans-serif; color: white; touch-action: none; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Arial Black', sans-serif; color: white; user-select: none; }
         
-        /* --- EKRAN ŁADOWANIA --- */
-        #loading-screen {
-            position: fixed; width: 100%; height: 100%;
-            background: radial-gradient(circle, #0055ff, #001133);
-            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .logo { font-size: 50px; font-style: italic; text-shadow: 0 5px 0 #000, 0 8px 15px rgba(0,0,0,0.5); color: var(--bs-yellow); margin-bottom: 40px; }
-        .bar-bg { width: 280px; height: 18px; background: #000c24; border: 3px solid #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
-        #loading-bar { width: 0%; height: 100%; background: linear-gradient(to bottom, #ffff00, #ffaa00); transition: width 0.2s; }
-
-        /* --- MENU GŁÓWNE --- */
+        /* --- BACKGROUND --- */
         #main-menu {
             display: none; position: fixed; width: 100%; height: 100%;
-            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'), radial-gradient(circle at center, #0066ff 0%, #002266 100%);
+            background: radial-gradient(circle at center, #0055ff 0%, #001133 100%);
         }
 
-        /* Lewy Panel - Sklep, Zadymiarze */
-        .left-menu {
-            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
-            display: flex; flex-direction: column; gap: 15px; z-index: 10;
+        /* --- KARNET OKNO (MODAL) --- */
+        #pass-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000; flex-direction: column; align-items: center; justify-content: center;
         }
-        .side-btn {
-            width: 80px; height: 80px; background: #fff; border-radius: 15px;
+        .pass-content {
+            width: 80%; background: linear-gradient(#00ccff, #0044ff); border: 5px solid #fff;
+            border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 0 30px #00ccff;
+        }
+        .reward-grid { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
+        .reward-item { background: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px; border: 2px solid #fff; width: 80px; }
+
+        /* --- GÓRNE UI (PUCHARKI I WALUTY) --- */
+        .top-ui { position: absolute; top: 10px; width: 100%; display: flex; justify-content: center; z-index: 100; }
+        .trophy-bar { 
+            background: rgba(0,0,0,0.6); padding: 5px 20px; border-radius: 20px; border: 2px solid #fff;
+            display: flex; align-items: center; gap: 10px; font-size: 18px; color: #ffaa00;
+        }
+        .res-container { position: absolute; right: 15px; display: flex; gap: 10px; }
+        .res-item { background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 15px; border: 1px solid #fff; font-size: 13px; }
+
+        /* --- LEWE MENU --- */
+        .side-menu {
+            position: absolute; left: 15px; top: 40%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 15px; z-index: 100;
+        }
+        .btn-ui {
+            width: 75px; height: 75px; border: 4px solid #000; border-radius: 15px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: 10px; font-weight: bold; border: 4px solid #000; box-shadow: 0 5px 0 #000;
-            color: #000; text-transform: uppercase;
+            font-size: 10px; box-shadow: 0 5px 0 #000; cursor: pointer; transition: 0.1s;
         }
-        .btn-shop { background: linear-gradient(#ffeb3b, #fbc02d); }
-        .btn-brawlers { background: linear-gradient(#e040fb, #7b1fa2); color: white; }
+        .btn-ui:active { transform: translateY(3px); box-shadow: 0 2px 0 #000; }
+        .s-shop { background: linear-gradient(#ffdd00, #ff8800); color: #420; }
+        .s-brawlers { background: linear-gradient(#d400ff, #770099); color: white; }
 
-        /* Góra: Waluty */
-        .top-bar { position: absolute; top: 10px; right: 15px; display: flex; gap: 10px; }
-        .res { 
-            background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 20px; 
-            border: 2px solid rgba(255,255,255,0.3); font-size: 14px; display: flex; align-items: center;
-        }
-
-        /* Postać Shelly */
-        .character-display {
-            position: absolute; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            pointer-events: none;
-        }
-        .shelly-render {
-            width: 160px; height: 220px; background: var(--bs-purple);
-            border: 8px solid #fff; border-radius: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            position: relative; animation: float 3s infinite ease-in-out;
-        }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-        .brawler-label {
-            margin-top: 20px; font-size: 32px; background: rgba(0,0,0,0.5);
-            padding: 5px 40px; border-radius: 50px; border: 2px solid #fff;
+        /* --- KARNET (LEWY DÓŁ) --- */
+        .pass-btn {
+            position: absolute; left: 15px; bottom: 20px; width: 90px; height: 90px;
+            background: linear-gradient(#00ccff, #0044ff); border: 4px solid #fff; border-radius: 15px;
+            z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 0 15px #00ccff; font-size: 11px; font-weight: bold; cursor: pointer;
         }
 
-        /* Dół: Starr Road i GRAJ */
-        .bottom-section {
-            position: absolute; bottom: 20px; width: 100%;
-            display: flex; flex-direction: column; align-items: center; gap: 15px;
-        }
-        .starr-road {
-            width: 300px; height: 50px; background: linear-gradient(90deg, #002d72, #0051ff);
-            border-radius: 25px; border: 3px solid #00ffff; display: flex; align-items: center; padding: 0 15px;
-            box-shadow: 0 0 15px rgba(0,255,255,0.3);
-        }
-        .kredyt-icon { width: 30px; height: 30px; background: #00ffff; border-radius: 8px; margin-right: 15px; }
+        /* --- POSTAĆ SHELLY --- */
+        .hero-box { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .hero-img { height: 85%; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.8)); transition: 0.3s; }
+        .hero-name { margin-top: -50px; background: rgba(0,0,0,0.8); padding: 10px 60px; border: 3px solid #fff; border-radius: 50px; font-size: 30px; text-shadow: 2px 2px #000; }
 
-        #play-btn {
-            width: 240px; height: 75px; background: linear-gradient(#fffb00, #ff9900);
+        /* --- PRZYCISK GRAJ --- */
+        .play-container { position: absolute; bottom: 25px; width: 100%; display: flex; justify-content: center; }
+        .btn-play {
+            width: 250px; height: 85px; background: linear-gradient(#ffff00, #ff8800);
             border: none; border-bottom: 8px solid #b36b00; border-radius: 20px;
-            color: #442200; font-size: 36px; font-weight: bold; font-style: italic;
-            text-shadow: 0 2px 0 rgba(255,255,255,0.5); cursor: pointer;
+            color: #420; font-size: 38px; font-weight: bold; font-style: italic; cursor: pointer;
         }
-        #play-btn:active { transform: scale(0.95); border-bottom: 2px solid #b36b00; }
+
+        /* --- LOADER --- */
+        #loader {
+            position: fixed; width: 100%; height: 100%; z-index: 3000;
+            background: url('loading_bg.png') no-repeat center center; background-size: cover;
+            display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 60px;
+        }
+        .l-bar { width: 280px; height: 18px; background: #000; border: 3px solid #fff; border-radius: 20px; overflow: hidden; }
+        #l-progress { width: 0%; height: 100%; background: #ff0; }
     </style>
 </head>
 <body>
 
-<div id="loading-screen">
-    <div class="logo">BRAWL STARS</div>
-    <div class="bar-bg"><div id="loading-bar"></div></div>
+<div id="loader">
+    <div class="l-bar"><div id="l-progress"></div></div>
+    <div style="margin-top: 10px; font-style: italic;">ŁADOWANIE...</div>
+</div>
+
+<div id="pass-overlay" onclick="this.style.display='none'">
+    <div class="pass-content" onclick="event.stopPropagation()">
+        <h2>BRAWL PASS</h2>
+        <div class="reward-grid">
+            <div class="reward-item">🪙<br>500</div>
+            <div class="reward-item">💎<br>10</div>
+            <div class="reward-item">✨<br>100</div>
+        </div>
+        <button onclick="document.getElementById('pass-overlay').style.display='none'" style="margin-top:20px; padding:10px 20px; border-radius:10px; border:none; background:#ffff00; font-weight:bold;">ZAMKNIJ</button>
+    </div>
 </div>
 
 <div id="main-menu">
-    <div class="top-bar">
-        <div class="res" style="color: #ffcc00;">🪙 1250</div>
-        <div class="res" style="color: #ff00ff;">💎 30</div>
-    </div>
-
-    <div class="left-menu">
-        <div class="side-btn btn-shop">🛒<br>Sklep</div>
-        <div class="side-btn btn-brawlers">👤<br>Zadymiarze</div>
-        <div class="side-btn" style="background: #eee;">💬<br>Klub</div>
-    </div>
-
-    <div class="character-display">
-        <div class="shelly-render">
-            <div style="position: absolute; top: 20px; left: 20px; width: 30px; height: 30px; background: #fff; border-radius: 50%;"></div>
-            <div style="position: absolute; top: 20px; right: 20px; width: 30px; height: 30px; background: #fff; border-radius: 50%;"></div>
+    <div class="top-ui">
+        <div class="trophy-bar">🏆 8,450</div>
+        <div class="res-container">
+            <div class="res-item">🪙 2,400</div>
+            <div class="res-item" style="color:#0f0">💎 45</div>
         </div>
-        <div class="brawler-label">SHELLY</div>
     </div>
 
-    <div class="bottom-section">
-        <div class="starr-road">
-            <div class="kredyt-icon"></div>
-            <div style="font-size: 12px; flex-grow: 1;">
-                STARR ROAD: <span style="color: #00ffff;">450/925</span>
-            </div>
-            <span>➔</span>
-        </div>
-        <button id="play-btn" onclick="alert('START!')">GRAJ</button>
+    <div class="side-menu">
+        <div class="btn-ui s-shop">SKLEP</div>
+        <div class="btn-ui s-brawlers" onclick="nextHero()">ZADYMIARZE</div>
+    </div>
+
+    <div class="pass-btn" onclick="document.getElementById('pass-overlay').style.display='flex'">
+        <div style="font-size: 30px;">🎫</div>KARNET
+    </div>
+
+    <div class="hero-box">
+        <img src="shelly_win.png" id="hero-img" class="hero-img" onerror="this.src='https://via.placeholder.com/400x700/8e44ad/fff?text=SHELLY+WIN'">
+        <div class="hero-name" id="hero-name">SHELLY</div>
+    </div>
+
+    <div class="play-container">
+        <button class="btn-play" onclick="alert('START MECZU!')">GRAJ</button>
     </div>
 </div>
 
 <script>
-    const loadingBar = document.getElementById('loading-bar');
-    const loadingScreen = document.getElementById('loading-screen');
-    const mainMenu = document.getElementById('main-menu');
+    const heroes = [
+        {name: "SHELLY", img: "shelly_win.png"},
+        {name: "COLT", img: "colt.png"},
+        {name: "EL PRIMO", img: "elprimo.png"}
+    ];
+    let hIdx = 0;
 
-    // Automatyczne ładowanie
-    let progress = 0;
-    const interval = setInterval(() => {
-        progress += Math.random() * 5;
-        if (progress >= 100) {
-            progress = 100;
-            clearInterval(interval);
+    function nextHero() {
+        hIdx = (hIdx + 1) % heroes.length;
+        const img = document.getElementById('hero-img');
+        const name = document.getElementById('hero-name');
+        img.style.transform = 'scale(0.8) opacity(0)';
+        setTimeout(() => {
+            name.innerText = heroes[hIdx].name;
+            img.src = heroes[hIdx].img;
+            img.style.transform = 'scale(1) opacity(1)';
+        }, 150);
+    }
+
+    let p = 0;
+    const bar = document.getElementById('l-progress');
+    const timer = setInterval(() => {
+        p += Math.random() * 6;
+        if(p > 100) p = 100;
+        bar.style.width = p + '%';
+        if(p === 100) {
+            clearInterval(timer);
             setTimeout(() => {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    mainMenu.style.display = 'block';
-                }, 500);
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('main-menu').style.display = 'block';
             }, 500);
         }
-        loadingBar.style.width = progress + '%';
     }, 80);
 </script>
 
