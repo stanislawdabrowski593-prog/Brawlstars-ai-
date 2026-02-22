@@ -3,108 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Brawl Stars Clone</title>
+    <title>Brawl Stars HTML5</title>
     <style>
         body { margin: 0; overflow: hidden; background: #0033cc; font-family: 'Arial Black', sans-serif; color: white; touch-action: none; }
         
-        /* Tło Menu */
-        #main-menu {
+        /* --- EKRAN ŁADOWANIA --- */
+        #loading-screen {
             position: fixed; width: 100%; height: 100%;
+            background: radial-gradient(circle, #0055ff, #001133);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .logo { font-size: 45px; font-style: italic; text-shadow: 4px 4px #000; margin-bottom: 30px; color: #ffff00; }
+        .bar-bg { width: 70%; height: 15px; background: #001a4d; border: 3px solid #fff; border-radius: 10px; overflow: hidden; }
+        #loading-bar { width: 0%; height: 100%; background: #ffff00; }
+
+        /* --- MENU GŁÓWNE --- */
+        #main-menu {
+            display: none; position: fixed; width: 100%; height: 100%;
             background: radial-gradient(circle at center, #0055ff 0%, #001133 100%);
-            display: flex; flex-direction: column; justify-content: space-between;
+            flex-direction: column; justify-content: space-between;
         }
 
-        /* Górny pasek zasobów */
-        .top-bar {
-            display: flex; justify-content: flex-end; padding: 10px; gap: 10px;
-        }
-        .res {
-            background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 15px;
-            border: 2px solid #fff; font-size: 14px; display: flex; align-items: center;
-        }
+        /* Góra: Zasoby */
+        .top-bar { display: flex; justify-content: flex-end; padding: 10px; gap: 8px; }
+        .res { background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 15px; border: 2px solid #fff; font-size: 14px; }
 
-        /* Shelly w centrum */
-        .character-zone {
-            flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative;
-        }
-        .shelly-big {
-            width: 140px; height: 180px; background: #8e44ad; border: 6px solid #fff;
+        /* Środek: Shelly */
+        .character-zone { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .shelly-box {
+            width: 140px; height: 190px; background: #8e44ad; border: 6px solid #fff;
             border-radius: 30px; box-shadow: 0 0 50px rgba(142,68,173,0.5);
-            position: relative; animation: idle 2s infinite ease-in-out;
+            position: relative;
         }
-        @keyframes idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .brawler-name { margin-top: 15px; font-size: 26px; text-shadow: 2px 2px #000; background: rgba(0,0,0,0.3); padding: 5px 20px; border-radius: 10px; }
 
-        /* Aleja Kredytów (Starr Road) na dole nad przyciskami */
+        /* Dół: Starr Road (Kredyty) */
         .starr-road {
-            background: rgba(0, 40, 120, 0.8); margin: 10px auto; width: 90%;
-            height: 60px; border-radius: 10px; border: 2px solid #00ffff;
-            display: flex; align-items: center; padding: 0 15px; position: relative;
+            background: linear-gradient(to right, #002878, #0055ff); 
+            margin: 0 auto 10px; width: 85%; height: 55px; 
+            border-radius: 12px; border: 2px solid #00ffff;
+            display: flex; align-items: center; padding: 0 15px;
         }
-        .kredyty-icon { width: 30px; height: 30px; background: #00ffff; border-radius: 5px; margin-right: 10px; box-shadow: 0 0 10px #00ffff; }
-        .progress-text { font-size: 12px; color: #00ffff; }
+        .kredyt-icon { width: 25px; height: 25px; background: #00ffff; border-radius: 4px; margin-right: 12px; box-shadow: 0 0 10px #00ffff; }
 
-        /* Dolny pasek nawigacji */
+        /* Dolny Pasek Nawigacji */
         .nav-bar {
             display: flex; justify-content: space-around; align-items: center;
-            background: rgba(0,0,0,0.8); padding: 15px 0; border-top: 3px solid #0055ff;
+            background: rgba(0,0,0,0.9); padding: 10px 0 20px 0; border-top: 3px solid #0055ff;
         }
-        .nav-item { text-align: center; font-size: 10px; color: #bbb; width: 60px; }
-        .nav-item.active { color: #fff; transform: scale(1.1); }
-        .btn-shop { color: #ffcc00; }
-        .btn-brawlers { color: #cc00ff; }
-
-        /* Przycisk GRAJ */
+        .nav-btn { text-align: center; font-size: 11px; color: #fff; text-decoration: none; }
+        .icon-box { font-size: 24px; margin-bottom: 2px; }
+        
         #play-btn {
-            width: 150px; height: 60px; background: #ffff00; border: none;
-            border-bottom: 5px solid #ccaa00; border-radius: 10px;
-            color: #442200; font-size: 24px; font-weight: bold; font-style: italic;
+            width: 160px; height: 65px; background: #ffff00; border: none;
+            border-bottom: 6px solid #cca300; border-radius: 12px;
+            color: #442200; font-size: 28px; font-weight: bold; font-style: italic;
+            cursor: pointer;
         }
 
-        /* Ukryty Canvas gry */
+        /* Gra */
         #gameCanvas { display: none; background: #567d46; }
     </style>
 </head>
 <body>
 
+<div id="loading-screen">
+    <div class="logo">BRAWL STARS</div>
+    <div class="bar-bg"><div id="loading-bar"></div></div>
+    <p style="margin-top: 10px; font-size: 12px;">Ładowanie danych...</p>
+</div>
+
 <div id="main-menu">
     <div class="top-bar">
         <div class="res" style="border-color: #ffcc00;">🪙 1250</div>
         <div class="res" style="border-color: #ff00ff;">💎 30</div>
-        <div class="res" style="border-color: #00ffff;">✨ 450</div>
     </div>
 
     <div class="character-zone">
-        <div class="shelly-big">
-             <div style="position: absolute; bottom: 10px; width: 100%; text-align: center; font-size: 20px; text-shadow: 2px 2px #000;">SHELLY</div>
-        </div>
+        <div class="shelly-box"></div>
+        <div class="brawler-name">SHELLY</div>
     </div>
 
     <div class="starr-road">
-        <div class="kredyty-icon"></div>
-        <div>
-            <div style="font-size: 14px; font-weight: bold;">NASTĘPNY ZADYMIARZ</div>
-            <div class="progress-text">Kredyty: 450 / 925</div>
+        <div class="kredyt-icon"></div>
+        <div style="flex-grow: 1;">
+            <div style="font-size: 10px;">NASTĘPNY ZADYMIARZ</div>
+            <div style="font-size: 14px; color: #00ffff;">Kredyty: 450 / 925</div>
         </div>
-        <div style="position: absolute; right: 15px; font-size: 20px;">➔</div>
+        <div style="font-size: 18px;">➔</div>
     </div>
 
     <div class="nav-bar">
-        <div class="nav-item btn-shop">
-            <div style="font-size: 20px;">🛒</div>
-            SKLEP
+        <div class="nav-btn" style="color: #ffcc00;">
+            <div class="icon-box">🛒</div>SKLEP
         </div>
-        <div class="nav-item btn-brawlers">
-            <div style="font-size: 20px;">👤</div>
-            ZADYMIARZE
+        <div class="nav-btn" style="color: #cc00ff;">
+            <div class="icon-box">👤</div>ZADYMIARZE
         </div>
-        <button id="play-btn" onclick="startGame()">GRAJ</button>
-        <div class="nav-item">
-            <div style="font-size: 20px;">🏆</div>
-            WYDARZENIA
+        
+        <button id="play-btn" onclick="startMatch()">GRAJ</button>
+        
+        <div class="nav-btn">
+            <div class="icon-box">🏆</div>ALEJA
         </div>
-        <div class="nav-item">
-            <div style="font-size: 20px;">⚙️</div>
-            MENU
+        <div class="nav-btn">
+            <div class="icon-box">☰</div>MENU
         </div>
     </div>
 </div>
@@ -112,17 +115,34 @@
 <canvas id="gameCanvas"></canvas>
 
 <script>
+    const loadingBar = document.getElementById('loading-bar');
+    const loadingScreen = document.getElementById('loading-screen');
+    const mainMenu = document.getElementById('main-menu');
     const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
 
-    function startGame() {
-        // Logika uruchamiania gry (taka jak w poprzednim kroku)
-        document.getElementById('main-menu').style.display = 'none';
+    // --- AUTOMATYCZNE ŁADOWANIE ---
+    let width = 0;
+    const interval = setInterval(() => {
+        width += Math.random() * 3; // Losowa prędkość ładowania
+        if (width >= 100) {
+            width = 100;
+            clearInterval(interval);
+            setTimeout(showMenu, 500); // Mała pauza na końcu
+        }
+        loadingBar.style.width = width + '%';
+    }, 50);
+
+    function showMenu() {
+        loadingScreen.style.display = 'none';
+        mainMenu.style.display = 'flex';
+    }
+
+    function startMatch() {
+        mainMenu.style.display = 'none';
         canvas.style.display = 'block';
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        alert("Mecz się rozpoczyna! Shelly do boju!");
-        // Tutaj można wkleić pętlę update() z poprzedniego kodu
+        alert("Wchodzenie do meczu...");
     }
 </script>
 
