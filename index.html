@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Brawl Stars - Starr Island Edition</title>
+    <title>Brawl Stars Simulator Pro</title>
     <style>
-        :root { --bs-blue: #0066ff; --bs-yellow: #ffcc00; --bs-purple: #8e44ad; }
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Arial Black', sans-serif; color: white; user-select: none; touch-action: none; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Arial Black', sans-serif; color: white; user-select: none; }
         
         /* --- LOADER --- */
         #loader {
@@ -17,64 +16,41 @@
         .bar-bg { width: 300px; height: 18px; background: rgba(0,0,0,0.8); border: 3px solid #fff; border-radius: 20px; overflow: hidden; }
         #bar-fill { width: 0%; height: 100%; background: linear-gradient(#ff0, #f90); }
 
-        /* --- GŁÓWNE EKRANY --- */
-        .screen { display: none; position: fixed; width: 100%; height: 100%; background: radial-gradient(circle, #0055ff 0%, #001133 100%); z-index: 100; }
-        #lobby { display: block; } /* Startujemy w lobby */
+        /* --- LOBBY --- */
+        #lobby { display: none; position: fixed; width: 100%; height: 100%; background: radial-gradient(circle, #0055ff, #001133); }
 
-        /* --- UI MODALE (SKLEP, ZADYMIARZE, PASS) --- */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .modal-content {
-            width: 90%; height: 80%; background: #0033aa; border: 5px solid #fff; border-radius: 20px;
-            position: relative; padding: 20px; box-sizing: border-box;
-        }
-        .close-btn { position: absolute; top: -20px; right: -20px; width: 50px; height: 50px; background: red; border: 4px solid #fff; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-
-        /* --- GÓRNE ZASOBY (0-0-0-0) --- */
+        /* GÓRNE UI */
         .top-ui { position: absolute; top: 10px; width: 100%; display: flex; justify-content: center; z-index: 500; }
         .currency-box { position: absolute; right: 20px; display: flex; gap: 8px; }
-        .res-pill { background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 15px; border: 2px solid #fff; font-size: 14px; }
+        .res-pill { background: rgba(0,0,0,0.7); padding: 5px 12px; border-radius: 15px; border: 2px solid #fff; font-size: 14px; display: flex; align-items: center; gap: 5px; }
 
-        /* --- LEWE MENU PIONOWE --- */
+        /* LEWE MENU */
         .left-menu { position: absolute; left: 15px; top: 40%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; z-index: 500; }
         .side-btn { 
-            width: 80px; height: 80px; border: 4px solid #000; border-radius: 15px; 
-            box-shadow: 0 6px 0 #000; cursor: pointer; transition: 0.1s;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px;
+            width: 75px; height: 75px; border: 4px solid #000; border-radius: 12px; 
+            box-shadow: 0 5px 0 #000; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px;
         }
-        .side-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #000; }
-        .btn-shop { background: linear-gradient(#ffcc00, #ff8800); color: #420; }
-        .btn-brawlers { background: linear-gradient(#d400ff, #770099); }
-        .btn-pass { background: linear-gradient(#00ccff, #0044ff); }
+        .btn-shop { background: #ffcc00; color: #420; }
+        .btn-brawlers { background: #d400ff; }
+        .btn-pass { background: #00ccff; }
 
-        /* --- DROGA STARR (DÓŁ LEWO) --- */
-        .starr-road {
-            position: absolute; left: 15px; bottom: 15px; width: 220px; height: 60px;
-            background: linear-gradient(90deg, #002d72, #0055ff); border: 3px solid #00ffff;
-            border-radius: 15px; z-index: 500; display: flex; align-items: center; padding: 5px; cursor: pointer;
-        }
+        /* MODALE */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { width: 90%; height: 85%; background: #0033aa; border: 5px solid #fff; border-radius: 20px; padding: 20px; position: relative; overflow-y: auto; }
+        .close-btn { position: absolute; top: 10px; right: 10px; background: red; padding: 10px 20px; border-radius: 10px; cursor: pointer; border: 3px solid #fff; font-weight: bold; }
 
-        /* --- POSTAĆ SHELLY --- */
-        .brawler-container { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .shelly-img { height: 85%; filter: drop-shadow(0 20px 40px #000); }
+        /* SKLEP - SEKTY */
+        .shop-section { margin-bottom: 30px; }
+        .shop-grid { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; }
+        .offer-card { min-width: 160px; height: 220px; background: #002277; border: 3px solid #ffcc00; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 10px; text-align: center; }
+        .buy-btn { background: #00ff44; color: #000; border: none; padding: 10px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; }
+        .buy-btn:disabled { background: #555; cursor: default; }
 
-        /* --- PRZYCISK GRAJ (BEZ NAPISU) --- */
-        .play-container { position: absolute; bottom: 20px; right: 20px; z-index: 500; }
-        .play-btn {
-            width: 260px; height: 90px; background: linear-gradient(#ff0, #f90);
-            border: none; border-bottom: 10px solid #b36b00; border-radius: 25px;
-            cursor: pointer; transition: 0.1s;
-        }
-        .play-btn:active { transform: scale(0.95); border-bottom-width: 2px; }
-
-        /* WYBÓR TRYBU */
-        .mode-btn {
-            position: absolute; bottom: 120px; right: 40px; width: 220px; height: 50px;
-            background: rgba(0,0,0,0.8); border: 2px solid #fff; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-        }
+        /* LOBBY ELEMENTY */
+        .starr-road { position: absolute; left: 15px; bottom: 15px; width: 200px; height: 50px; background: #002d72; border: 2px solid #00ffff; border-radius: 12px; display: flex; align-items: center; padding: 5px; font-size: 11px; }
+        .play-container { position: absolute; bottom: 20px; right: 20px; }
+        .play-btn { width: 240px; height: 85px; background: linear-gradient(#ff0, #f90); border: none; border-bottom: 8px solid #b36b00; border-radius: 20px; cursor: pointer; }
+        .brawler-img { height: 80vh; filter: drop-shadow(0 0 30px #000); position: absolute; top: 10%; left: 50%; transform: translateX(-50%); }
     </style>
 </head>
 <body>
@@ -83,94 +59,127 @@
     <div class="bar-bg"><div id="bar-fill"></div></div>
 </div>
 
-<div id="lobby" class="screen">
+<div id="lobby">
     <div class="top-ui">
-        <div class="res-pill" style="color:#ffaa00">🏆 0</div>
+        <div class="res-pill">🏆 <span id="val-trophies">0</span></div>
         <div class="currency-box">
-            <div class="res-pill">🪙 0</div>
-            <div class="res-pill" style="color:#0f4">💎 0</div>
-            <div class="res-pill" style="color:#c0f">⚡ 0</div>
+            <div class="res-pill">🪙 <span id="val-coins">0</span></div>
+            <div class="res-pill" style="color:#0f4">💎 <span id="val-gems">0</span></div>
+            <div class="res-pill" style="color:#c0f">⚡ <span id="val-pp">0</span></div>
         </div>
     </div>
 
     <div class="left-menu">
-        <div class="side-btn btn-shop" onclick="openModal('shop-modal')"><b>🛒</b>SKLEP</div>
-        <div class="side-btn btn-brawlers" onclick="openModal('brawlers-modal')"><b>👤</b>ZADYMIARZE</div>
-        <div class="side-btn btn-pass" onclick="openModal('pass-modal')"><b>🎫</b>PASS</div>
+        <div class="side-btn btn-shop" onclick="toggleModal('shop-modal', true)">🛒<br>SKLEP</div>
+        <div class="side-btn btn-brawlers" onclick="toggleModal('brawlers-modal', true)">👤<br>ZADYMIARZE</div>
+        <div class="side-btn btn-pass" onclick="toggleModal('pass-modal', true)">🎫<br>PASS</div>
     </div>
 
-    <div class="starr-road" onclick="alert('Droga Starr: Następna Nita!')">
-        <div style="width:40px; height:40px; background:#00ffff; border-radius:8px; margin-right:10px;"></div>
-        <div style="font-size:11px;">DROGA STARR<br><span style="color:#00ffff">0 / 100</span></div>
+    <img src="https://r.jina.ai/i/05e1974642c842e6a3f96603a10521e1" class="brawler-img">
+
+    <div class="starr-road">
+        <div style="width:30px; height:30px; background:#00ffff; border-radius:5px; margin-right:8px;"></div>
+        DROGA STARR: <span id="val-starr">0</span>/100
     </div>
 
-    <div class="brawler-container">
-        <img src="https://r.jina.ai/i/05e1974642c842e6a3f96603a10521e1" class="shelly-img">
-    </div>
-
-    <div class="mode-btn" onclick="nextMode()"><span id="mode-text">STARCIE SOLO</span></div>
-    
     <div class="play-container">
-        <button class="play-btn" onclick="startMM()"></button> </div>
+        <button class="play-btn" onclick="alert('SZUKANIE MECZU...')"></button>
+    </div>
 </div>
 
 <div id="shop-modal" class="modal">
     <div class="modal-content">
-        <div class="close-btn" onclick="closeModal('shop-modal')">X</div>
-        <h1>SKLEP</h1>
-        <div style="display:flex; gap:20px;">
-            <div style="width:150px; height:200px; background:#555; border-radius:10px; display:flex; align-items:center; justify-content:center;">DARMOWA<br>SKRZYNKA</div>
-            <div style="width:150px; height:200px; background:#555; border-radius:10px; display:flex; align-items:center; justify-content:center;">OFERTA<br>GEMÓW</div>
+        <div class="close-btn" onclick="toggleModal('shop-modal', false)">X</div>
+        
+        <div class="shop-section">
+            <h2>DARMOWE NAGRODY</h2>
+            <div class="shop-grid">
+                <div class="offer-card" style="border-color:#fff;">
+                    <h3>DZIENNY PREZENT</h3>
+                    <div style="font-size:40px;">🎁</div>
+                    <p>100 Monet<br>20 Punktów Mocy</p>
+                    <button class="buy-btn" id="daily-btn" onclick="claimDaily()">ODBIERZ</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="shop-section">
+            <h2>OFERTY SPECJALNE (SYMULACJA PLN)</h2>
+            <div class="shop-grid">
+                <div class="offer-card">
+                    <h3>START PACK</h3>
+                    <div style="font-size:40px;">💰</div>
+                    <p>5000 Monet<br>100 Gemów</p>
+                    <button class="buy-btn" onclick="buyOffer(5000, 100, 0)">19,99 PLN</button>
+                </div>
+                <div class="offer-card" style="border-color:#00ff44;">
+                    <h3>GIGA GEMY</h3>
+                    <div style="font-size:40px;">💎</div>
+                    <p>360 Gemów</p>
+                    <button class="buy-btn" onclick="buyOffer(0, 360, 0)">89,99 PLN</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="brawlers-modal" class="modal">
     <div class="modal-content">
-        <div class="close-btn" onclick="closeModal('brawlers-modal')">X</div>
-        <h1>ZADYMIARZE (1/80)</h1>
-        <div style="width:100px; height:130px; background:purple; border:3px solid #fff; border-radius:10px; text-align:center; padding-top:10px;">
-            <img src="https://r.jina.ai/i/05e1974642c842e6a3f96603a10521e1" style="width:60px;"><br>SHELLY
-        </div>
-    </div>
-</div>
-
-<div id="pass-modal" class="modal">
-    <div class="modal-content" style="background: linear-gradient(#00ccff, #0044ff);">
-        <div class="close-btn" onclick="closeModal('pass-modal')">X</div>
-        <h1>BRAWL PASS: SEZON 1</h1>
-        <div style="width:100%; height:100px; background:rgba(255,255,255,0.2); margin-top:50px; display:flex; align-items:center; padding:0 20px;">
-            NAGRODA 1: 🪙 50 (Zablokowane)
+        <div class="close-btn" onclick="toggleModal('brawlers-modal', false)">X</div>
+        <h1>MOI ZADYMIARZE</h1>
+        <div style="width:120px; padding:15px; background:#8e44ad; border:3px solid white; border-radius:15px; text-align:center;">
+            <img src="https://r.jina.ai/i/05e1974642c842e6a3f96603a10521e1" style="width:100%;">
+            <div style="font-size:14px; margin-top:10px;">SHELLY</div>
+            <div style="font-size:10px; color:#c0f;">MOC: 1</div>
         </div>
     </div>
 </div>
 
 <script>
-    // System Modali
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    let stats = { coins: 0, gems: 0, pp: 0, trophies: 0, starr: 0 };
+    let dailyClaimed = false;
 
-    // Tryby
-    let modes = ["STARCIE SOLO", "STARCIE DUO", "STARCIE TRIO"];
-    let mIdx = 0;
-    function nextMode() {
-        mIdx = (mIdx + 1) % modes.length;
-        document.getElementById('mode-text').innerText = modes[mIdx];
+    function updateUI() {
+        document.getElementById('val-coins').innerText = stats.coins;
+        document.getElementById('val-gems').innerText = stats.gems;
+        document.getElementById('val-pp').innerText = stats.pp;
+        document.getElementById('val-trophies').innerText = stats.trophies;
+        document.getElementById('val-starr').innerText = stats.starr;
     }
 
-    // Graj
-    function startMM() {
-        alert("WYSZUKIWANIE GRACZY...");
+    function toggleModal(id, show) {
+        document.getElementById(id).style.display = show ? 'flex' : 'none';
+    }
+
+    function claimDaily() {
+        if(!dailyClaimed) {
+            stats.coins += 100;
+            stats.pp += 20;
+            dailyClaimed = true;
+            document.getElementById('daily-btn').innerText = "ODEBRANO";
+            document.getElementById('daily-btn').disabled = true;
+            updateUI();
+            alert("Odebrano darmową nagrodę!");
+        }
+    }
+
+    function buyOffer(c, g, p) {
+        stats.coins += c;
+        stats.gems += g;
+        stats.pp += p;
+        updateUI();
+        alert("Zakup zakończony pomyślnie! (Symulacja PLN)");
     }
 
     // Loader
     let p = 0;
-    const load = setInterval(() => {
+    const interval = setInterval(() => {
         p += 5;
         document.getElementById('bar-fill').style.width = p + '%';
         if(p >= 100) {
-            clearInterval(load);
+            clearInterval(interval);
             document.getElementById('loader').style.display = 'none';
+            document.getElementById('lobby').style.display = 'block';
         }
     }, 50);
 </script>
