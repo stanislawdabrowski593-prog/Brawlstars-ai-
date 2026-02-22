@@ -3,163 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Brawl Stars - Starr Island Edition</title>
+    <title>Brawl Stars - Start 0</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Arial Black', sans-serif; color: white; user-select: none; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Arial Black', sans-serif; color: white; user-select: none; touch-action: none; }
         
-        /* --- BACKGROUND --- */
-        #main-menu {
+        /* EKRAN ŁADOWANIA - TWOJE TŁO STARR ISLAND */
+        #loader {
+            position: fixed; width: 100%; height: 100%; z-index: 5000;
+            background: url('https://r.jina.ai/i/97034c5625904ec59b5832e81699767c') no-repeat center center;
+            background-size: cover; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 50px;
+        }
+        .bar-bg { width: 300px; height: 18px; background: rgba(0,0,0,0.8); border: 3px solid #fff; border-radius: 20px; overflow: hidden; }
+        #bar-fill { width: 0%; height: 100%; background: linear-gradient(#ff0, #f90); }
+
+        /* MENU GŁÓWNE */
+        #menu {
             display: none; position: fixed; width: 100%; height: 100%;
             background: radial-gradient(circle at center, #0055ff 0%, #001133 100%);
         }
 
-        /* --- KARNET OKNO (MODAL) --- */
-        #pass-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 2000; flex-direction: column; align-items: center; justify-content: center;
+        /* GÓRNE UI - ZASOBY (WSZYSTKO NA 0) */
+        .top-row { position: absolute; top: 10px; width: 100%; display: flex; justify-content: center; z-index: 100; }
+        .trophy-badge { background: rgba(0,0,0,0.6); padding: 5px 20px; border: 2px solid #fff; border-radius: 20px; color: #ffaa00; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+        
+        .currency-container { position: absolute; right: 15px; display: flex; gap: 8px; }
+        .res-pill { 
+            background: rgba(0,0,0,0.7); padding: 4px 12px; border-radius: 15px; 
+            border: 2px solid rgba(255,255,255,0.3); font-size: 13px; display: flex; align-items: center; gap: 5px;
         }
-        .pass-content {
-            width: 80%; background: linear-gradient(#00ccff, #0044ff); border: 5px solid #fff;
-            border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 0 30px #00ccff;
-        }
-        .reward-grid { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-        .reward-item { background: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px; border: 2px solid #fff; width: 80px; }
+        .icon-coin { color: #ffcc00; }
+        .icon-gem { color: #00ff44; } /* ZIELONE GEMY */
+        .icon-pp { color: #cc00ff; }  /* PUNKTY MOCY */
 
-        /* --- GÓRNE UI (PUCHARKI I WALUTY) --- */
-        .top-ui { position: absolute; top: 10px; width: 100%; display: flex; justify-content: center; z-index: 100; }
-        .trophy-bar { 
-            background: rgba(0,0,0,0.6); padding: 5px 20px; border-radius: 20px; border: 2px solid #fff;
-            display: flex; align-items: center; gap: 10px; font-size: 18px; color: #ffaa00;
+        /* LEWE MENU PIONOWE */
+        .left-sidebar {
+            position: absolute; left: 15px; top: 45%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 15px; z-index: 200;
         }
-        .res-container { position: absolute; right: 15px; display: flex; gap: 10px; }
-        .res-item { background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 15px; border: 1px solid #fff; font-size: 13px; }
-
-        /* --- LEWE MENU --- */
-        .side-menu {
-            position: absolute; left: 15px; top: 40%; transform: translateY(-50%);
-            display: flex; flex-direction: column; gap: 15px; z-index: 100;
-        }
-        .btn-ui {
+        .side-btn {
             width: 75px; height: 75px; border: 4px solid #000; border-radius: 15px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             font-size: 10px; box-shadow: 0 5px 0 #000; cursor: pointer; transition: 0.1s;
         }
-        .btn-ui:active { transform: translateY(3px); box-shadow: 0 2px 0 #000; }
+        .side-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #000; }
         .s-shop { background: linear-gradient(#ffdd00, #ff8800); color: #420; }
         .s-brawlers { background: linear-gradient(#d400ff, #770099); color: white; }
+        .s-pass { background: linear-gradient(#00ccff, #0044ff); color: white; }
 
-        /* --- KARNET (LEWY DÓŁ) --- */
-        .pass-btn {
-            position: absolute; left: 15px; bottom: 20px; width: 90px; height: 90px;
-            background: linear-gradient(#00ccff, #0044ff); border: 4px solid #fff; border-radius: 15px;
-            z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 0 15px #00ccff; font-size: 11px; font-weight: bold; cursor: pointer;
+        /* SHELLY - TWÓJ RENDER */
+        .brawler-display {
+            position: absolute; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
+        .brawler-img {
+            height: 85%; filter: drop-shadow(0 15px 35px rgba(0,0,0,0.9));
+            animation: idle 4s infinite ease-in-out;
+        }
+        @keyframes idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .name-plate { margin-top: -55px; background: rgba(0,0,0,0.8); padding: 8px 70px; border: 3px solid #fff; border-radius: 40px; font-size: 30px; z-index: 10; }
 
-        /* --- POSTAĆ SHELLY --- */
-        .hero-box { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .hero-img { height: 85%; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.8)); transition: 0.3s; }
-        .hero-name { margin-top: -50px; background: rgba(0,0,0,0.8); padding: 10px 60px; border: 3px solid #fff; border-radius: 50px; font-size: 30px; text-shadow: 2px 2px #000; }
-
-        /* --- PRZYCISK GRAJ --- */
-        .play-container { position: absolute; bottom: 25px; width: 100%; display: flex; justify-content: center; }
-        .btn-play {
-            width: 250px; height: 85px; background: linear-gradient(#ffff00, #ff8800);
+        /* PRZYCISK GRAJ */
+        .footer { position: absolute; bottom: 25px; width: 100%; display: flex; justify-content: center; }
+        .play-btn {
+            width: 250px; height: 85px; background: linear-gradient(#ff0, #f90);
             border: none; border-bottom: 8px solid #b36b00; border-radius: 20px;
             color: #420; font-size: 38px; font-weight: bold; font-style: italic; cursor: pointer;
         }
-
-        /* --- LOADER --- */
-        #loader {
-            position: fixed; width: 100%; height: 100%; z-index: 3000;
-            background: url('loading_bg.png') no-repeat center center; background-size: cover;
-            display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 60px;
-        }
-        .l-bar { width: 280px; height: 18px; background: #000; border: 3px solid #fff; border-radius: 20px; overflow: hidden; }
-        #l-progress { width: 0%; height: 100%; background: #ff0; }
     </style>
 </head>
 <body>
 
 <div id="loader">
-    <div class="l-bar"><div id="l-progress"></div></div>
-    <div style="margin-top: 10px; font-style: italic;">ŁADOWANIE...</div>
+    <div class="bar-bg"><div id="bar-fill"></div></div>
+    <div style="margin-top:10px; font-size: 12px; letter-spacing: 2px;">WCZYTYWANIE...</div>
 </div>
 
-<div id="pass-overlay" onclick="this.style.display='none'">
-    <div class="pass-content" onclick="event.stopPropagation()">
-        <h2>BRAWL PASS</h2>
-        <div class="reward-grid">
-            <div class="reward-item">🪙<br>500</div>
-            <div class="reward-item">💎<br>10</div>
-            <div class="reward-item">✨<br>100</div>
-        </div>
-        <button onclick="document.getElementById('pass-overlay').style.display='none'" style="margin-top:20px; padding:10px 20px; border-radius:10px; border:none; background:#ffff00; font-weight:bold;">ZAMKNIJ</button>
-    </div>
-</div>
-
-<div id="main-menu">
-    <div class="top-ui">
-        <div class="trophy-bar">🏆 8,450</div>
-        <div class="res-container">
-            <div class="res-item">🪙 2,400</div>
-            <div class="res-item" style="color:#0f0">💎 45</div>
+<div id="menu">
+    <div class="top-row">
+        <div class="trophy-badge"><span>🏆</span> 0</div>
+        <div class="currency-container">
+            <div class="res-pill"><span class="icon-coin">🪙</span> 0</div>
+            <div class="res-pill"><span class="icon-gem">💎</span> 0</div>
+            <div class="res-pill"><span class="icon-pp">⚡</span> 0</div>
         </div>
     </div>
 
-    <div class="side-menu">
-        <div class="btn-ui s-shop">SKLEP</div>
-        <div class="btn-ui s-brawlers" onclick="nextHero()">ZADYMIARZE</div>
+    <div class="left-sidebar">
+        <div class="side-btn s-shop"><b>🛒</b><br>SKLEP</div>
+        <div class="side-btn s-brawlers" onclick="alert('Zadymiarze: 1/80')"><b>👤</b><br>ZADYMIARZE</div>
+        <div class="side-btn s-pass"><b>🎫</b><br>PASS</div>
     </div>
 
-    <div class="pass-btn" onclick="document.getElementById('pass-overlay').style.display='flex'">
-        <div style="font-size: 30px;">🎫</div>KARNET
+    <div class="brawler-display">
+        <img src="https://r.jina.ai/i/05e1974642c842e6a3f96603a10521e1" class="brawler-img" alt="Shelly">
+        <div class="name-plate">SHELLY</div>
     </div>
 
-    <div class="hero-box">
-        <img src="shelly_win.png" id="hero-img" class="hero-img" onerror="this.src='https://via.placeholder.com/400x700/8e44ad/fff?text=SHELLY+WIN'">
-        <div class="hero-name" id="hero-name">SHELLY</div>
-    </div>
-
-    <div class="play-container">
-        <button class="btn-play" onclick="alert('START MECZU!')">GRAJ</button>
+    <div class="footer">
+        <button class="play-btn" onclick="alert('SZUKANIE MECZU...')">GRAJ</button>
     </div>
 </div>
 
 <script>
-    const heroes = [
-        {name: "SHELLY", img: "shelly_win.png"},
-        {name: "COLT", img: "colt.png"},
-        {name: "EL PRIMO", img: "elprimo.png"}
-    ];
-    let hIdx = 0;
-
-    function nextHero() {
-        hIdx = (hIdx + 1) % heroes.length;
-        const img = document.getElementById('hero-img');
-        const name = document.getElementById('hero-name');
-        img.style.transform = 'scale(0.8) opacity(0)';
-        setTimeout(() => {
-            name.innerText = heroes[hIdx].name;
-            img.src = heroes[hIdx].img;
-            img.style.transform = 'scale(1) opacity(1)';
-        }, 150);
-    }
-
-    let p = 0;
-    const bar = document.getElementById('l-progress');
-    const timer = setInterval(() => {
-        p += Math.random() * 6;
-        if(p > 100) p = 100;
-        bar.style.width = p + '%';
-        if(p === 100) {
-            clearInterval(timer);
+    let progress = 0;
+    const bar = document.getElementById('bar-fill');
+    const loading = setInterval(() => {
+        progress += Math.random() * 6;
+        if(progress >= 100) {
+            progress = 100;
+            clearInterval(loading);
             setTimeout(() => {
                 document.getElementById('loader').style.display = 'none';
-                document.getElementById('main-menu').style.display = 'block';
+                document.getElementById('menu').style.display = 'block';
             }, 500);
         }
-    }, 80);
+        bar.style.width = progress + '%';
+    }, 70);
 </script>
 
 </body>
