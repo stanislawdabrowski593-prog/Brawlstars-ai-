@@ -3,216 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Brawl Stars Shelly - Prototyp</title>
+    <title>Brawl Stars Clone</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #1a1a1a; font-family: 'Arial Black', sans-serif; touch-action: none; }
-        canvas { display: block; background: #567d46; }
-        #loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #0044cc; color: yellow; display: flex;
-            flex-direction: column; justify-content: center; align-items: center; z-index: 100;
+        body { margin: 0; overflow: hidden; background: #0033cc; font-family: 'Arial Black', sans-serif; color: white; touch-action: none; }
+        
+        /* Tło Menu */
+        #main-menu {
+            position: fixed; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #0055ff 0%, #001133 100%);
+            display: flex; flex-direction: column; justify-content: space-between;
         }
-        .bar-container { width: 200px; height: 20px; background: #000; border: 3px solid white; margin-top: 20px; }
-        #loading-bar { width: 0%; height: 100%; background: yellow; }
+
+        /* Górny pasek zasobów */
+        .top-bar {
+            display: flex; justify-content: flex-end; padding: 10px; gap: 10px;
+        }
+        .res {
+            background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 15px;
+            border: 2px solid #fff; font-size: 14px; display: flex; align-items: center;
+        }
+
+        /* Shelly w centrum */
+        .character-zone {
+            flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative;
+        }
+        .shelly-big {
+            width: 140px; height: 180px; background: #8e44ad; border: 6px solid #fff;
+            border-radius: 30px; box-shadow: 0 0 50px rgba(142,68,173,0.5);
+            position: relative; animation: idle 2s infinite ease-in-out;
+        }
+        @keyframes idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* Aleja Kredytów (Starr Road) na dole nad przyciskami */
+        .starr-road {
+            background: rgba(0, 40, 120, 0.8); margin: 10px auto; width: 90%;
+            height: 60px; border-radius: 10px; border: 2px solid #00ffff;
+            display: flex; align-items: center; padding: 0 15px; position: relative;
+        }
+        .kredyty-icon { width: 30px; height: 30px; background: #00ffff; border-radius: 5px; margin-right: 10px; box-shadow: 0 0 10px #00ffff; }
+        .progress-text { font-size: 12px; color: #00ffff; }
+
+        /* Dolny pasek nawigacji */
+        .nav-bar {
+            display: flex; justify-content: space-around; align-items: center;
+            background: rgba(0,0,0,0.8); padding: 15px 0; border-top: 3px solid #0055ff;
+        }
+        .nav-item { text-align: center; font-size: 10px; color: #bbb; width: 60px; }
+        .nav-item.active { color: #fff; transform: scale(1.1); }
+        .btn-shop { color: #ffcc00; }
+        .btn-brawlers { color: #cc00ff; }
+
+        /* Przycisk GRAJ */
+        #play-btn {
+            width: 150px; height: 60px; background: #ffff00; border: none;
+            border-bottom: 5px solid #ccaa00; border-radius: 10px;
+            color: #442200; font-size: 24px; font-weight: bold; font-style: italic;
+        }
+
+        /* Ukryty Canvas gry */
+        #gameCanvas { display: none; background: #567d46; }
     </style>
 </head>
 <body>
 
-<div id="loading-screen" onclick="startGame()">
-    <h1>BRAWL STARS</h1>
-    <p>Postać: SHELLY</p>
-    <div class="bar-container"><div id="loading-bar"></div></div>
-    <p id="status">Dotknij, aby zacząć!</p>
+<div id="main-menu">
+    <div class="top-bar">
+        <div class="res" style="border-color: #ffcc00;">🪙 1250</div>
+        <div class="res" style="border-color: #ff00ff;">💎 30</div>
+        <div class="res" style="border-color: #00ffff;">✨ 450</div>
+    </div>
+
+    <div class="character-zone">
+        <div class="shelly-big">
+             <div style="position: absolute; bottom: 10px; width: 100%; text-align: center; font-size: 20px; text-shadow: 2px 2px #000;">SHELLY</div>
+        </div>
+    </div>
+
+    <div class="starr-road">
+        <div class="kredyty-icon"></div>
+        <div>
+            <div style="font-size: 14px; font-weight: bold;">NASTĘPNY ZADYMIARZ</div>
+            <div class="progress-text">Kredyty: 450 / 925</div>
+        </div>
+        <div style="position: absolute; right: 15px; font-size: 20px;">➔</div>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item btn-shop">
+            <div style="font-size: 20px;">🛒</div>
+            SKLEP
+        </div>
+        <div class="nav-item btn-brawlers">
+            <div style="font-size: 20px;">👤</div>
+            ZADYMIARZE
+        </div>
+        <button id="play-btn" onclick="startGame()">GRAJ</button>
+        <div class="nav-item">
+            <div style="font-size: 20px;">🏆</div>
+            WYDARZENIA
+        </div>
+        <div class="nav-item">
+            <div style="font-size: 20px;">⚙️</div>
+            MENU
+        </div>
+    </div>
 </div>
 
 <canvas id="gameCanvas"></canvas>
 
 <script>
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
-// Dźwięki (Musisz mieć te pliki w folderze lub zamienić linki)
-const soundStart = new Audio('start.mp3');
-const soundShoot = new Audio('shoot.mp3');
-
-let gameStarted = false;
-
-// Ładowanie (symulacja)
-let progress = 0;
-const loadInt = setInterval(() => {
-    progress += 2;
-    document.getElementById('loading-bar').style.width = progress + "%";
-    if(progress >= 100) clearInterval(loadInt);
-}, 30;
-
-function startGame() {
-    if(progress < 100) return;
-    document.getElementById('loading-screen').style.display = 'none';
-    gameStarted = true;
-    soundStart.play().catch(e => console.log("Brak pliku dźwiękowego"));
-}
-
-// Ustawienia
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-// Obiekty gry
-const player = {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
-    radius: 25,
-    hp: 3600,
-    maxHp: 3600,
-    speed: 4,
-    angle: 0
-};
-
-// Ściany (Przeszkody)
-const walls = [
-    {x: 100, y: 100, w: 80, h: 80},
-    {x: canvas.width - 200, y: 150, w: 100, h: 40},
-    {x: canvas.width / 2 - 50, y: canvas.height - 150, w: 100, h: 50}
-];
-
-let enemies = [{ x: 200, y: 200, hp: 3000, maxHp: 3000 }];
-let bullets = [];
-
-// Sterowanie
-let touchStart = null;
-let moveDir = { x: 0, y: 0 };
-
-window.addEventListener('touchstart', (e) => {
-    const touch = e.touches[0];
-    if (touch.clientX < canvas.width / 2) {
-        touchStart = { x: touch.clientX, y: touch.clientY };
-    } else {
-        shoot(touch.clientX, touch.clientY);
+    function startGame() {
+        // Logika uruchamiania gry (taka jak w poprzednim kroku)
+        document.getElementById('main-menu').style.display = 'none';
+        canvas.style.display = 'block';
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        alert("Mecz się rozpoczyna! Shelly do boju!");
+        // Tutaj można wkleić pętlę update() z poprzedniego kodu
     }
-});
-
-window.addEventListener('touchmove', (e) => {
-    if (!touchStart) return;
-    const touch = e.touches[0];
-    const dx = touch.clientX - touchStart.x;
-    const dy = touch.clientY - touchStart.y;
-    const angle = Math.atan2(dy, dx);
-    moveDir = { x: Math.cos(angle), y: Math.sin(angle) };
-    player.angle = angle;
-});
-
-window.addEventListener('touchend', () => {
-    touchStart = null;
-    moveDir = { x: 0, y: 0 };
-});
-
-function shoot(tx, ty) {
-    if(!gameStarted) return;
-    soundShoot.currentTime = 0;
-    soundShoot.play().catch(e => {});
-    
-    const angle = Math.atan2(ty - player.y, tx - player.x);
-    // Shelly strzela kilkoma pociskami na raz (spread)
-    for(let i = -0.2; i <= 0.2; i += 0.1) {
-        bullets.push({
-            x: player.x,
-            y: player.y,
-            vx: Math.cos(angle + i) * 12,
-            vy: Math.sin(angle + i) * 12,
-            life: 30
-        });
-    }
-}
-
-function checkWallCollision(nx, ny) {
-    for(let wall of walls) {
-        if(nx + 20 > wall.x && nx - 20 < wall.x + wall.w &&
-           ny + 20 > wall.y && ny - 20 < wall.y + wall.h) return true;
-    }
-    return false;
-}
-
-function update() {
-    if(!gameStarted) return requestAnimationFrame(update);
-
-    // Ruch z kolizjami ze ścianami
-    let nextX = player.x + moveDir.x * player.speed;
-    let nextY = player.y + moveDir.y * player.speed;
-    
-    if(!checkWallCollision(nextX, player.y)) player.x = nextX;
-    if(!checkWallCollision(player.x, nextY)) player.y = nextY;
-
-    // Pociski
-    bullets.forEach((b, index) => {
-        b.x += b.vx;
-        b.y += b.vy;
-        b.life--;
-
-        // Kolizja ze ścianą
-        for(let wall of walls) {
-            if(b.x > wall.x && b.x < wall.x + wall.w && b.y > wall.y && b.y < wall.y + wall.h) {
-                bullets.splice(index, 1);
-                return;
-            }
-        }
-
-        // Kolizja z wrogiem
-        enemies.forEach(en => {
-            const dist = Math.hypot(b.x - en.x, b.y - en.y);
-            if(dist < 30) {
-                en.hp -= 300;
-                bullets.splice(index, 1);
-            }
-        });
-    });
-    
-    bullets = bullets.filter(b => b.life > 0);
-    draw();
-    requestAnimationFrame(update);
-}
-
-function drawHealthBar(x, y, hp, maxHp, color) {
-    const width = 60;
-    ctx.fillStyle = "black";
-    ctx.fillRect(x - width/2, y - 45, width, 8);
-    ctx.fillStyle = color;
-    ctx.fillRect(x - width/2, y - 45, (hp/maxHp) * width, 8);
-}
-
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Ściany
-    ctx.fillStyle = "#2d4d1f";
-    walls.forEach(w => ctx.fillRect(w.x, w.y, w.w, w.h));
-
-    // Shelly (Gracz)
-    ctx.save();
-    ctx.translate(player.x, player.y);
-    ctx.rotate(player.angle);
-    // Tułów (Fioletowy - Shelly)
-    ctx.fillStyle = "#8e44ad";
-    ctx.fillRect(-20, -20, 40, 40);
-    // Strzelba
-    ctx.fillStyle = "#333";
-    ctx.fillRect(10, -5, 25, 10);
-    ctx.restore();
-    drawHealthBar(player.x, player.y, player.hp, player.maxHp, "#2ecc71");
-
-    // Przeciwnicy
-    enemies.forEach(en => {
-        ctx.fillStyle = "#e74c3c";
-        ctx.beginPath(); ctx.arc(en.x, en.y, 25, 0, Math.PI*2); ctx.fill();
-        drawHealthBar(en.x, en.y, en.hp, en.maxHp, "red");
-    });
-
-    // Pociski
-    ctx.fillStyle = "orange";
-    bullets.forEach(b => {
-        ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI*2); ctx.fill();
-    });
-}
-
-update();
 </script>
+
 </body>
 </html>
