@@ -1,1 +1,199 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Brawl Stars HTML5 - Mini Prototyp</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #222; font-family: sans-serif; touch-action: none; }
+        canvas { display: block; background: #4a7c2c; } /* Zielona mapa */
+        
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            text-shadow: 2px 2px 0 #000;
+            pointer-events: none;
+        }
 
+        /* Joystick wizualny */
+        #joystick-base {
+            position: absolute;
+            bottom: 50px;
+            left: 50px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: none;
+        }
+        #joystick-stick {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            top: 30px;
+            left: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="ui">HP: <span id="hp">100</span> | Pokonani: <span id="score">0</span></div>
+<div id="joystick-base"><div id="joystick-stick"></div></div>
+<canvas id="gameCanvas"></canvas>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const hpDisplay = document.getElementById('hp');
+const scoreDisplay = document.getElementById('score');
+
+// Ustawienia ekranu
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Gracz
+const player = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    radius: 20,
+    color: '#3498db',
+    hp: 100,
+    speed: 4,
+    angle: 0
+};
+
+// Przeciwnik
+let enemy = { x: 100, y: 100, radius: 20, color: '#e74c3c', hp: 50 };
+let score = 0;
+
+// Pociski
+let bullets = [];
+
+// Sterowanie dotykowe (Joystick)
+let touchStart = null;
+let moveDir = { x: 0, y: 0 };
+const joyBase = document.getElementById('joystick-base');
+const joyStick = document.getElementById('joystick-stick');
+
+window.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    if (touch.clientX < canvas.width / 2) { // Lewa strona ekranu - ruch
+        touchStart = { x: touch.clientX, y: touch.clientY };
+        joyBase.style.display = 'block';
+        joyBase.style.left = (touchStart.x - 50) + 'px';
+        joyBase.style.top = (touchStart.y - 50) + 'px';
+    } else { // Prawa strona ekranu - strzał
+        shoot(touch.clientX, touch.clientY);
+    }
+});
+
+window.addEventListener('touchmove', (e) => {
+    if (!touchStart) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - touchStart.x;
+    const dy = touch.clientY - touchStart.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const maxDist = 50;
+
+    const angle = Math.atan2(dy, dx);
+    const moveX = Math.cos(angle);
+    const moveY = Math.sin(angle);
+
+    moveDir = { x: moveX, y: moveY };
+    player.angle = angle;
+
+    // Wizualizacja sticka
+    const stickDist = Math.min(dist, maxDist);
+    joyStick.style.transform = `translate(${Math.cos(angle) * stickDist}px, ${Math.sin(angle) * stickDist}px)`;
+});
+
+window.addEventListener('touchend', () => {
+    touchStart = null;
+    moveDir = { x: 0, y: 0 };
+    joyBase.style.display = 'none';
+});
+
+function shoot(targetX, targetY) {
+    const angle = Math.atan2(targetY - player.y, targetX - player.x);
+    bullets.push({
+        x: player.x,
+        y: player.y,
+        vx: Math.cos(angle) * 10,
+        vy: Math.sin(angle) * 10,
+        life: 60
+    });
+}
+
+function update() {
+    // Ruch gracza
+    player.x += moveDir.x * player.speed;
+    player.y += moveDir.y * player.speed;
+
+    // Granice mapy
+    player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
+    player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+
+    // Pociski
+    bullets.forEach((b, index) => {
+        b.x += b.vx;
+        b.y += b.vy;
+        b.life--;
+
+        // Kolizja z przeciwnikiem
+        const dist = Math.hypot(b.x - enemy.x, b.y - enemy.y);
+        if (dist < enemy.radius + 5) {
+            enemy.hp -= 10;
+            bullets.splice(index, 1);
+            if (enemy.hp <= 0) {
+                score++;
+                scoreDisplay.innerText = score;
+                enemy.x = Math.random() * canvas.width;
+                enemy.y = Math.random() * canvas.height;
+                enemy.hp = 50;
+            }
+        }
+    });
+    bullets = bullets.filter(b => b.life > 0);
+
+    draw();
+    requestAnimationFrame(update);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Rysuj gracza
+    ctx.fillStyle = player.color;
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Kierunek (mała kropka)
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(player.x + Math.cos(player.angle)*15, player.y + Math.sin(player.angle)*15, 5, 0, Math.PI*2);
+    ctx.fill();
+
+    // Rysuj przeciwnika
+    ctx.fillStyle = enemy.color;
+    ctx.beginPath();
+    ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Rysuj pociski
+    ctx.fillStyle = 'yellow';
+    bullets.forEach(b => {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
+update();
+</script>
+</body>
+  </html>
